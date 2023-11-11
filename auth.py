@@ -1,35 +1,17 @@
-import json
-from dotenv import load_dotenv
 import os
-import base64
-from requests import post
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from dotenv import load_dotenv
 
 load_dotenv()
 
-client_id = os.getenv("CLIENT_ID")
-client_secret = os.getenv("CLIENT_SECRET")
+client_id = os.getenv('CLIENT_ID')
 
-def get_token():
-    auth_string = client_id + ":" + client_secret
-    auth_bytes = auth_string.encode("utf-8")
-    auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
+scope = "user-library-read user-modify-playback-state user-read-playback-state"
 
-    url = "https://accounts.spotify.com/api/token"
-    headers = {
-        "Authorization": "Basic " + auth_base64,
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
-    data = {"grant_type": "client_credentials"}
-
-    result = post(url, headers=headers, data=data)
-    json_result = json.loads(result.content)
-    token = json_result['access_token']
-    return token
-
-def get_auth_header(token):
-    return {"Authorization": "Bearer" + token}
-
-token = get_token()
-
-print(token)
+results = sp.current_user_playing_track()
+print(results['item']['artists'][0]['name'], "--", results['item']['name'])
+sp.next_track()
+print(results['item']['artists'][0]['name'], "--", results['item']['name'])

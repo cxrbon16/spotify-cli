@@ -14,33 +14,23 @@ class processor:
         return self.client.current_playback()['device']['volume_percent']
     
     def get_current_track_name(self):
-        self.client.current_user_playing_track()['item']['name']
+        return self.client.current_user_playing_track()['item']['name']
 
-    def next_track(self):
+    def next_track(self, args):
         return self.client.next_track()
-
-    def adjust_volume(self, adj: str):
-        current_vol = self.get_current_volume()
-        change = 0
-        for i in adj:
-            if i == "+":
-                change += 10
-            elif i == "-":
-                change -= 10
-            else:
-                return "invalid input brah."
-        if current_vol + change > 100:
-            self.client.volume(100)
-        elif current_vol + change <= 0:
-            self.client.volume(0)
-        else:
-            self.client.volume(current_vol + change)
-        
+    
+    def get_playlists(self, args):
+        plists = self.client.current_user_playlists()
+        for i in range(len(plists['items'])):
+            print(plists['items'][i]['name'])
+    
+    def adjust_volume_directly(self, args):
+        self.client.volume(int(args.adj))
         time.sleep(0.2)
-        return self.get_current_volume()
-        
-    def adjust_volume_directly(self, adj: int):
-        self.client.volume(int(adj))
-        time.sleep(0.2)
-        return self.get_current_volume()
+    def get_current(self, args):
+        print(f"""
+          current display name: {self.get_display_name()}
+          current track name: {self.get_current_track_name()},
+          current volume level: {self.get_current_volume()},
+           """)
     
